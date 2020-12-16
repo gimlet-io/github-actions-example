@@ -11,15 +11,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1 
       with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        repository: gimlet-io/github-actions-example/github-actions-example
-        tags:  ${{ github.sha }}
-    
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.PAT }} # `PAT` is a secret that contains your Personal Access Token with `write:packages` scope
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}:${{ github.sha }}
+
     - name: Fetch Gimlet CLI
       run: |
         # curl -L https://github.com/gimlet-io/gimlet-cli/releases/download/v0.3.0/gimlet-$(uname)-$(uname -m) -o gimlet
@@ -30,7 +41,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: gimlet-io/github-actions-example-gitops
-        token: ${{ secrets.GITOPS_REPO_TOKEN }} # `GITOPS_REPO_TOKEN` is a secret that contains your Personal Access Token
+        token: ${{ secrets.PAT }} # `PAT` is a secret that contains your Personal Access Token with `repo` scope
         path: gitops
 
     - name: Write to GitOps repository

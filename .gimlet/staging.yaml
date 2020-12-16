@@ -8,5 +8,5 @@ chart:
 values:
   replicas: 1
   image:
-    repository: docker.pkg.github.com/gimlet-io/github-actions-example/github-actions-example
+    repository: ghcr.io/gimlet-io/github-actions-example
     tag: {{ .GITHUB_SHA }}

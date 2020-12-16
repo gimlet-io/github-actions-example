@@ -1,4 +1,4 @@
-app: myapp
+app: github-actions-example
 env: staging
 namespace: my-team
 chart:
@@ -8,5 +8,5 @@ chart:
 values:
   replicas: 1
   image:
-    repository: myapp
-    tag: {{ .GIT_SHA }}
+    repository: docker.pkg.github.com/gimlet-io/github-actions-example/github-actions-example
+    tag: {{ .GITHUB_SHA }}

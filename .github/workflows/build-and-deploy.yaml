@@ -11,11 +11,35 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Push to Docker Hub
+    - name: Build and push Docker image
       uses: docker/build-push-action@v1
       with:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
         repository: gimlet-io/github-actions-example/github-actions-example
-        tags: ${{ github.sha }}
+        tags:  ${{ github.sha }}
+    
+    - name: Fetch Gimlet CLI
+      run: |
+        # curl -L https://github.com/gimlet-io/gimlet-cli/releases/download/v0.3.0/gimlet-$(uname)-$(uname -m) -o gimlet
+        curl -L https://github.com/gimlet-io/gimlet-cli/releases/download/tip/gimlet-$(uname)-$(uname -m) -o gimlet
+        chmod +x gimlet
+
+    - name: Checkout GitOps repo
+      uses: actions/checkout@v2
+      with:
+        repository: gimlet-io/github-actions-example-gitops
+        token: ${{ secrets.GITOPS_REPO_TOKEN }} # `GITOPS_REPO_TOKEN` is a secret that contains your Personal Access Token
+        path: gitops
+
+    - name: Write to GitOps repository
+      run: |
+        ./gimlet manifest template \
+          -f .gimlet/staging.yaml |
+            ./gimlet gitops write -f - \
+              --env staging \
+              --app github-actions-example \
+              --gitops-repo-path gitops \
+              -m "Releasing $GITHUB_SHA"
+        (cd gitops/; git push origin main)

@@ -4,6 +4,14 @@ Example repo for using Gimlet CLI with Github Actions
 
 Check the Gimlet manifest file in `.gimlet/` and the Github Actions code under `.github/workflows`.
 
+## Builds
+
+https://github.com/gimlet-io/github-actions-example/actions
+
+## GitOps repo
+
+https://github.com/gimlet-io/github-actions-example-gitops
+
 ## Forking this repo
 
 If you fork the repo, you must add a Secret called `PAT` in the repo settings.
